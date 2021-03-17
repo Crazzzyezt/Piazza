@@ -1,0 +1,90 @@
+For å logge in: mysql -A -h mysql.stud.ntnu.no -u edsongr_eistad -p edsongr_eistad_datab
+
+Create table User (
+	UserID integer not null,
+	name varchar(30),
+	email varchar(30),
+	password varchar(30),
+	readstats integer,
+	type varchar(30),
+	constraint User_PK Primary Key(UserID));
+
+Create table Student (
+	StudentID integer not null,
+	UserID integer not null,
+	Constraint Student_PK Primary Key (StudentID), 
+	Constraint Student_FK foreign key (UserID) references User(UserID)
+		on update cascade
+                on delete cascade);
+
+
+
+Create table Instructor (
+	InstructorID integer not null,
+	UserID integer not null,
+	Constraint Instructor_PK Primary Key (InstructorID), 
+	Constraint Instructor_FK foreign key (UserID) references User(UserID)
+		on update cascade
+                on delete cascade);
+                
+Create table Course ( 
+	CourseID Integer not null, 
+	CourseName varchar(30), 
+	term varchar(30), 
+	constraint Course_PK Primary Key(CourseID));
+
+Create table Folder ( 
+	FolderID integer not null, 
+	Category varchar(30),
+	CourseID integer not null, 
+	Constraint Folder_PK Primary Key(FolderID),
+	constraint Folder_FK foreign key(CourseID) references Course(CourseID)
+		on update cascade
+    		on delete cascade);
+
+Create table Thread ( 
+	ThreadID Integer not null, 
+	Title varchar(100),
+	ThreadText varchar(300), 
+	views integer,
+	UserID integer not null,
+	FolderID integer not null,
+		constraint Thread_PK Primary Key(ThreadID),
+		constraint Thread_FK1 foreign key(UserID) references User(UserID)
+			on update cascade
+    			on delete cascade,
+		constraint Thread_FK2 foreign key(FolderID) references Folder(FolderID)
+			on update cascade
+    			on delete cascade);
+    
+Create table Post ( 
+	PostID integer not null, 
+	tag varchar(30), 
+	likes integer, 
+	text varchar(300),
+	UserID integer not null, 
+	ThreadID integer not null,
+		constraint Post_PK Primary Key(PostID),
+		constraint Post_FK1 foreign key(UserID) references User(UserID)
+			on update cascade
+    			on delete cascade, 
+		constraint Post_FK2 foreign key(ThreadID) references Thread(ThreadID)
+			on update cascade
+    			on delete cascade);
+
+    
+
+
+    
+
+    
+Create table UserInCourse (
+UserID integer not null, 
+CourseID integer not null, 
+constraint UserInCourse_PK Primary Key(UserID, CourseID), 
+Constraint UserInCourse_FK1 Foreign Key(UserID) references User(UserID)
+	on update cascade
+    on delete cascade, 
+Constraint UserInCourse_FK2 Foreign Key(CourseID) references Course(CourseID)
+	on update cascade
+    on delete cascade);

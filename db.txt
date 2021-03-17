@@ -1,0 +1,38 @@
+package databaseProsjekt;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.util.Properties;
+
+
+public class DBConn {
+
+	protected Connection conn;
+
+	public DBConn() {
+	}
+	
+	public void connect() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			System.out.println("0");
+			java.util.Properties p = new Properties();
+			p.put("user", "root");
+			p.put("password", "passord");
+			System.out.println("1");
+			conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1/piazza?"
+					+ "allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false", p);
+			System.out.println("2");
+			PreparedStatement statement=conn.prepareStatement("INSERT INTO CourseID VALUES ( (?), (?), (?) ) ");
+			System.out.println("3");
+			statement.setInt(1, 0);
+			statement.setString(2, "DATDAT");
+			statement.setString(3, "Spring");
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}
