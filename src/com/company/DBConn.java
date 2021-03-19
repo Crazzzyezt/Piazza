@@ -96,5 +96,31 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+
+    public void insertPost(String tag, int likes, String text, int userID, int threadID) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO Post(tag, likes, text, UserID, ThreadID) VALUES ( (?), (?), (?), (?), (?) ) ");
+            PreparedStatement statement2 = conn.prepareStatement("Select title from Thread where ThreadID = (?)");
+            statement2.setInt(1,threadID);
+            ResultSet rs = statement2.executeQuery();
+            String threadTitle = null;
+            while (rs.next()) {
+                threadTitle = rs.getString("Title");
+
+            }
+
+
+            System.out.println("inserting post into " + threadTitle);
+            statement.setString(1, tag);
+            statement.setInt(2, likes);
+            statement.setString(3, text);
+            statement.setInt(4, userID);
+            statement.setInt(5, threadID);
+            statement.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
