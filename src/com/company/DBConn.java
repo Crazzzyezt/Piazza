@@ -71,5 +71,30 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+    public void insertThread(String title, String threadText, int views, int userID, int folderID) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO Thread(Title,ThreadText, Views,UserID, FolderID) VALUES ( (?), (?), (?), (?), (?) ) ");
+            PreparedStatement statement2 = conn.prepareStatement("Select category from Folder where FolderID = (?)");
+            statement2.setInt(1,folderID);
+            ResultSet rs = statement2.executeQuery();
+            String folderCategory = null;
+            while (rs.next()) {
+                folderCategory = rs.getString("Category");
+
+            }
+
+
+            System.out.println("inserting " + title + " into " + folderCategory);
+            statement.setString(1, title);
+            statement.setString(2, threadText);
+            statement.setInt(3, views);
+            statement.setInt(4, userID);
+            statement.setInt(5, folderID);
+            statement.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
