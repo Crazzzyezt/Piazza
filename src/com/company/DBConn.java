@@ -59,5 +59,17 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+    public void insertFolder(String category, int courseID) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO Folder(Category, CourseID) VALUES ( (?), (?) ) ");
+            System.out.println("inserting " + category + " into Folder");
+            statement.setString(1, category);
+            statement.setInt(2, courseID);
+            statement.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 
