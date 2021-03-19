@@ -122,5 +122,19 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+    // Use case 2
+    public void postInCorrectFolder(String text, String tag, String folderName,int UserID){
+        try{
+            PreparedStatement statement = conn.prepareStatement("Select FolderID from Folder where Category = (?)");
+            statement.setString(1,folderName);
+            ResultSet rs = statement.executeQuery();
+            int folderIDFromResult;
+            while (rs.next()){
+                folderIDFromResult = rs.getInt("FolderID");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
 
