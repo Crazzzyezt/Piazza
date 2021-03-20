@@ -1,7 +1,7 @@
 package com.company;
 
 import java.sql.*;
-import java.util.Properties;
+import java.util.*;
 
 
 public class DBConn {
@@ -27,13 +27,29 @@ public class DBConn {
         }
     }
 
+    public List<Integer> search(String keyword){
+        List<Integer> list = new ArrayList<>();
+        try {
+            PreparedStatement statement = conn.prepareStatement("SELECT PostID from Post where text like (?) ");
+            statement.setString(1, "%" + keyword + "%");
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getInt("PostID"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public Boolean checkPassword(String username, String password) {
         try {
-            PreparedStatement statement = conn.prepareStatement("SELECT name from User where password=(?)");
+            PreparedStatement statement = conn.prepareStatement("SELECT name, email from User where password=(?)");
             statement.setString(1, password);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                if (rs.getString("name").equals(username)) {
+                if (rs.getString("name").equals(username)
+                        ||  rs.getString("email").equals(username)) {
                     return true;
                 }
             }
