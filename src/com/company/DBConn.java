@@ -75,5 +75,82 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+    public void insertFolder(String category, int courseID) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO Folder(Category, CourseID) VALUES ( (?), (?) ) ");
+            System.out.println("inserting " + category + " into Folder");
+            statement.setString(1, category);
+            statement.setInt(2, courseID);
+            statement.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void insertThread(String title, String threadText, int views, int userID, int folderID) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO Thread(Title,ThreadText, Views,UserID, FolderID) VALUES ( (?), (?), (?), (?), (?) ) ");
+            PreparedStatement statement2 = conn.prepareStatement("Select category from Folder where FolderID = (?)");
+            statement2.setInt(1,folderID);
+            ResultSet rs = statement2.executeQuery();
+            String folderCategory = null;
+            while (rs.next()) {
+                folderCategory = rs.getString("Category");
+
+            }
+
+
+            System.out.println("inserting " + title + " into " + folderCategory);
+            statement.setString(1, title);
+            statement.setString(2, threadText);
+            statement.setInt(3, views);
+            statement.setInt(4, userID);
+            statement.setInt(5, folderID);
+            statement.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void insertPost(String tag, int likes, String text, int userID, int threadID) {
+        try {
+            PreparedStatement statement = conn.prepareStatement("INSERT INTO Post(tag, likes, text, UserID, ThreadID) VALUES ( (?), (?), (?), (?), (?) ) ");
+            PreparedStatement statement2 = conn.prepareStatement("Select title from Thread where ThreadID = (?)");
+            statement2.setInt(1,threadID);
+            ResultSet rs = statement2.executeQuery();
+            String threadTitle = null;
+            while (rs.next()) {
+                threadTitle = rs.getString("Title");
+
+            }
+
+
+            System.out.println("inserting post into " + threadTitle);
+            statement.setString(1, tag);
+            statement.setInt(2, likes);
+            statement.setString(3, text);
+            statement.setInt(4, userID);
+            statement.setInt(5, threadID);
+            statement.execute();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+    // Use case 2
+    public void postInCorrectFolder(String text, String tag, String folderName,int UserID){
+        try{
+            PreparedStatement statement = conn.prepareStatement("Select FolderID from Folder where Category = (?)");
+            statement.setString(1,folderName);
+            ResultSet rs = statement.executeQuery();
+            int folderIDFromResult;
+            while (rs.next()){
+                folderIDFromResult = rs.getInt("FolderID");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
 
