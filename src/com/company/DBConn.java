@@ -41,7 +41,25 @@ public class DBConn {
         }
         return list;
     }
-
+//Use case 5. Only show raw data without columninfo as of now.
+    public HashMap<String,List<Integer>> stats(){
+        HashMap<String,List<Integer>> list = new HashMap<>();
+        try{
+            PreparedStatement statement = conn.prepareStatement("Select name, readstats, " +
+                "ifnull(count(P.PostID),0) as antallPosts" +
+                " From User as U" +
+                " Left Outer join Post as P" +
+                " on U.UserID = P.UserID" +
+                " Group by U.UserID");
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()){
+                list.put(rs.getString("name"),new ArrayList<>(Arrays.asList(rs.getInt("readstats"),rs.getInt("antallPosts"))));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return list;
+    }
     public Boolean checkPassword(String username, String password) {
         try {
             PreparedStatement statement = conn.prepareStatement("SELECT name, email from User where password=(?)");
@@ -65,15 +83,32 @@ public class DBConn {
 
     public void insertCourse(String name, String term) {
         try {
-            PreparedStatement statement = conn.prepareStatement("INSERT INTO Course(CourseName, term) VALUES ( (?), (?) ) ");
-            System.out.println("inserting " + name + "into Course");
+            PreparedStatement statement =
+                conn.prepareStatement("INSERT INTO Course(CourseName, term) VALUES ( (?), (?) ) ");
+            System.out.println("inserting " + name + " into Course");
             statement.setString(1, name);
             statement.setString(2, term);
             statement.execute();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+    }
+    public void insertUser(String name, String email, String password, int readstats, String type) {
+            try {
+                PreparedStatement statement = conn.prepareStatement("Insert Into User (Name, Email, Password, readstats, type) VALUES ( (?), (?), (?), (?), (?) ) ");
+                System.out.println("inserting user " + name + " into Course");
+                statement.setString(1, name);
+                statement.setString(2, email);
+                statement.setString(3, password);
+                statement.setInt(4,readstats);
+                statement.setString(5,type);
+
+                statement.execute();
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
     }
     public void insertFolder(String category, int courseID) {
         try {
