@@ -174,7 +174,7 @@ public class DBConn {
         }
     }
     // Use case 2
-    public void postInCorrectFolder(String text, String tag, String folderName,int UserID){
+    public void postInCorrectFolder(String text, String tag, String folderName,int userID){
         try{
             PreparedStatement statement = conn.prepareStatement("Select FolderID from Folder where Category = (?)");
             statement.setString(1,folderName);
@@ -187,5 +187,27 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+    // Use case 3
+    public void replyByPostID(String text, int postID, int userID){
+        int correctThreadID = 0;
+        try{
+            PreparedStatement statement = conn.prepareStatement("Select ThreadID from Thread natural join Post Where PostID = (?) ");
+            statement.setInt(1,postID);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()){
+                correctThreadID = rs.getInt("ThreadID");
+            }
+            PreparedStatement statement2 = conn.prepareStatement("Insert into Post(text,UserID,ThreadID) values ( (?), (?), (?))");
+            statement2.setString(1,text);
+            statement2.setInt(2,userID);
+            statement2.setInt(3,correctThreadID);
+            statement2.execute();
+        }
+        catch (Exception e ){
+            e.printStackTrace();
+        }
+        
+    }
+
 }
 

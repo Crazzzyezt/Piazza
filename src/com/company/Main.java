@@ -16,7 +16,7 @@ public class Main {
          */
 
         /* Insert Into User (Name, Email, Password, readstats, type)*//*
-        DBconn.insertUser("Charlie","charlie@email.no","charlie123",0,"student");*/
+        DBconn.insertUser("David","David@email.no","david123",0,"Instructor");
 
 
         /* Insert into Folder (Category, CourseID)
@@ -33,6 +33,7 @@ public class Main {
         DBconn.insertThread("LF","Når kommer LF for eksamen?",0,1,1);
          */
         System.out.println(DBconn.stats());
+        DBconn.replyByPostID("Konten er 12.desember", 1,4);
 
     }
 }
