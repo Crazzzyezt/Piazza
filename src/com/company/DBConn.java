@@ -2,6 +2,7 @@ package com.company;
 
 import java.sql.*;
 import java.util.*;
+import javax.xml.transform.Result;
 
 
 public class DBConn {
@@ -184,10 +185,28 @@ public class DBConn {
             PreparedStatement statement = conn.prepareStatement("Select FolderID from Folder where Category = (?)");
             statement.setString(1,folderName);
             ResultSet rs = statement.executeQuery();
-            int folderIDFromResult;
+            int folderIDFromResult= 0;
             while (rs.next()){
                 folderIDFromResult = rs.getInt("FolderID");
             }
+            PreparedStatement statement2 = conn.prepareStatement("Insert into Thread(UserID, FolderID) Values ( (?), (?))");
+            statement2.setInt(1,userID);
+            statement2.setInt(2,folderIDFromResult);
+            statement2.execute();
+            PreparedStatement lastInsert = conn.prepareStatement("Select LAST_INSERT_ID();");
+            ResultSet rs2 = lastInsert.executeQuery();
+            System.out.println();
+            int newThreadID = 0;
+            while (rs2.next()){
+                newThreadID = rs2.getInt("LAST_INSERT_ID()");
+            }
+
+            PreparedStatement statement3 = conn.prepareStatement("Insert into Post(text, tag,UserID,ThreadID) Values ( (?), (?), (?), (?))");
+            statement3.setString(1,text);
+            statement3.setString(2,tag);
+            statement3.setInt(3,userID);
+            statement3.setInt(4,newThreadID);
+            statement3.execute();
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -72,6 +72,8 @@ public class Main {
         //System.out.println(DBconn.stats());
         //DBconn.replyByPostID("Konten er 12.desember", 1,4);
 
+
+
     }
 
     private static void instructorMenu(BufferedReader reader, DBConn DBconn) throws IOException{
