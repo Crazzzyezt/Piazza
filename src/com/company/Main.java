@@ -2,14 +2,55 @@ package com.company;
 
 import com.mysql.cj.xdevapi.DbDoc;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class Main {
 
-    public static void main(String[] args) {
-        DBConn DBconn = new DBConn();
-        DBconn.connect();
-        //System.out.println(DBconn.checkPassword("Arne", "arne123"));
-        System.out.println(DBconn.search("eksamen"));
-        System.out.println(DBconn.checkPassword("Arne", "arne123"));
+    public static void main(String[] args) throws IOException {
+
+        DBConn DBconn = new DBConn();   //jdbc-klasse
+        int userType;   //0 = ugyldig, 1 = student, 2 = instruktør
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));   //for user-input
+
+        if(DBconn.connect()){
+            System.out.println("velkommen");
+        }
+        else {
+            System.out.println("kunne ikke koble til");
+            System.exit(0);
+        }
+
+
+
+        while (true) {                                      //kan bruke "Arne" og "arne123"
+            System.out.println("vennligst logg in med ditt brukernavn eller din e-post");
+            String username = reader.readLine();
+
+            System.out.println("vennligst oppgi ditt passord");
+            String password = reader.readLine();
+
+            userType = DBconn.checkPassword(username, password);
+            if (userType == 1){
+                System.out.println("student-innlogging vellykket");
+                studentMenu(reader);
+                System.exit(0);
+            }
+            else if (userType == 2){
+                System.out.println("instruktør-innlogging vellykket");
+                instructorMenu(reader);
+                System.exit(0);
+
+            }
+            else {System.out.println("innlogging mislyktes, prøv igjen");}
+        }
+
+
+
+
+        //System.out.println(DBconn.search("eksamen"));
+
 
         /* Insert Into Course (CourseName, term)
         DBconn.insertCourse("TDT4100","Høst");
@@ -32,8 +73,20 @@ public class Main {
         /* Insert into Thread (Title, ThreadText, Views, UserID, FolderID)
         DBconn.insertThread("LF","Når kommer LF for eksamen?",0,1,1);
          */
-        System.out.println(DBconn.stats());
-        DBconn.replyByPostID("Konten er 12.desember", 1,4);
+        //System.out.println(DBconn.stats());
+        //DBconn.replyByPostID("Konten er 12.desember", 1,4);
 
+    }
+
+    private static void instructorMenu(BufferedReader reader) throws IOException{
+        System.out.println("Velg blant alternativene: \n 1. Svar på en post \n 2. Se statistikk \n 3. avslutt");
+        String choice = reader.readLine();
+        System.out.println(choice);
+    }
+
+    private static void studentMenu(BufferedReader reader) throws IOException {
+        System.out.println("Velg blant alternativene: \n 1. Lag en ny post \n 2. Søk etter poster \n 3. avslutt");
+        String choice = reader.readLine();
+        System.out.println(choice);
     }
 }

@@ -11,7 +11,7 @@ public class DBConn {
     public DBConn() {
     }
 
-    public void connect() {
+    public boolean connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             //System.out.println("0");
@@ -22,8 +22,10 @@ public class DBConn {
             String url = "jdbc:mysql://mysql.stud.ntnu.no:3306/edsongr_eistad_datab?autoReconnect=true&useSSL=false";
             conn = DriverManager.getConnection(url, "edsongr_eistad", "passord");
             System.out.println("successfully established connection");
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -60,23 +62,26 @@ public class DBConn {
         }
         return list;
     }
-    public Boolean checkPassword(String username, String password) {
+    public int checkPassword(String username, String password) {
         try {
-            PreparedStatement statement = conn.prepareStatement("SELECT name, email from User where password=(?)");
+            PreparedStatement statement = conn.prepareStatement("SELECT name, email, type from User where password=(?)");
             statement.setString(1, password);
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
                 if (rs.getString("name").equals(username)
                         ||  rs.getString("email").equals(username)) {
-                    return true;
+                    if (rs.getString("type").toLowerCase().equals("student")){
+                        return 1;
+                    }
+                    else if (rs.getString("type").toLowerCase().equals("instructor")){
+                        return 2;
+                    }
                 }
             }
-            return false;
-
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return 0;
     }
 
 
