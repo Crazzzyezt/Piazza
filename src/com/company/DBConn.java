@@ -215,7 +215,7 @@ public class DBConn {
     public void replyByPostID(String text, int postID, int userID){
         int correctThreadID = 0;
         try{
-            PreparedStatement statement = conn.prepareStatement("Select ThreadID from Thread natural join Post Where PostID = (?) ");
+            PreparedStatement statement = conn.prepareStatement("Select ThreadID From Post Where PostID = (?) ");
             statement.setInt(1,postID);
             ResultSet rs = statement.executeQuery();
             while (rs.next()){

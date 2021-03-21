@@ -5,6 +5,7 @@ import com.mysql.cj.xdevapi.DbDoc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 
 public class Main {
 
@@ -82,9 +83,22 @@ public class Main {
             String choice = reader.readLine();
 
             if (choice.equals("1")) {    //besvar post
-                //todo
+                System.out.println("Vennligst oppgi PostID for posten du vil besvare: ");
+                int postID = Integer.parseInt(reader.readLine());
+                System.out.println("Vennligst oppgi ditt svar på posten: ");
+                String text = reader.readLine();
+                System.out.println("Vennligst oppgi din UserID: ");
+                int userID = Integer.parseInt(reader.readLine());
+                System.out.println(userID);
+                try{
+                    DBconn.replyByPostID(text,postID,userID);
+                    System.out.println("Post lagt til. ");
+                }catch (Exception e){
+                    System.out.println("Kunne ikke legge til post. Prøv igjen.");
+                }
             } else if (choice.equals("2")) {   //stats
-                //todo
+                System.out.println("Viser statistikk for Brukere, leserstatistikk og antall poster laget.");
+                System.out.println(DBconn.stats());
             }
             else {return;}
         }
@@ -96,7 +110,23 @@ public class Main {
             String choice = reader.readLine();
 
             if (choice.equals("1")) {    //lag post
-                //todo kim
+                System.out.println("Vennligst oppgi hvilken folder du ønsker lage ny tråd/post: ");
+                String folderName = reader.readLine();
+                System.out.println("Vennligst oppgi tekst: ");
+                String text = reader.readLine();
+                System.out.print("Vennligst oppgi tag: ");
+                String tag = reader.readLine();
+                System.out.println("Vennligst oppgi din UserID: ");
+                int userID = Integer.parseInt(reader.readLine());
+                System.out.print(userID);
+                try{
+                    DBconn.postInCorrectFolder(text,tag,folderName,userID);
+                    System.out.println("Post lagt til.");
+                }catch (Exception e){
+                    System.out.println("Kunne ikke poste. Prøv igjen.");
+
+                }
+
             } else if (choice.equals("2")) {   //søk
                 System.out.println("Vennligst oppgi et søkeord: ");
                 String searchTerm = reader.readLine();
