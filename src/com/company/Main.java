@@ -34,22 +34,18 @@ public class Main {
             userType = DBconn.checkPassword(username, password);
             if (userType == 1){
                 System.out.println("student-innlogging vellykket");
-                studentMenu(reader);
+                studentMenu(reader, DBconn);
                 System.exit(0);
             }
             else if (userType == 2){
                 System.out.println("instruktør-innlogging vellykket");
-                instructorMenu(reader);
+                instructorMenu(reader, DBconn);
                 System.exit(0);
 
             }
             else {System.out.println("innlogging mislyktes, prøv igjen");}
         }
 
-
-
-
-        //System.out.println(DBconn.search("eksamen"));
 
 
         /* Insert Into Course (CourseName, term)
@@ -78,15 +74,33 @@ public class Main {
 
     }
 
-    private static void instructorMenu(BufferedReader reader) throws IOException{
-        System.out.println("Velg blant alternativene: \n 1. Svar på en post \n 2. Se statistikk \n 3. avslutt");
-        String choice = reader.readLine();
-        System.out.println(choice);
+    private static void instructorMenu(BufferedReader reader, DBConn DBconn) throws IOException{
+        while (true) {
+            System.out.println("Velg blant alternativene: \n 1. Svar på en post \n 2. Se statistikk \n 3. avslutt");
+            String choice = reader.readLine();
+
+            if (choice.equals("1")) {    //besvar post
+                //todo
+            } else if (choice.equals("2")) {   //stats
+                //todo
+            }
+            else {return;}
+        }
     }
 
-    private static void studentMenu(BufferedReader reader) throws IOException {
-        System.out.println("Velg blant alternativene: \n 1. Lag en ny post \n 2. Søk etter poster \n 3. avslutt");
-        String choice = reader.readLine();
-        System.out.println(choice);
+    private static void studentMenu(BufferedReader reader, DBConn DBconn) throws IOException {
+        while (true) {
+            System.out.println("Velg blant alternativene: \n 1. Lag en ny post \n 2. Søk etter poster \n 3. avslutt");
+            String choice = reader.readLine();
+
+            if (choice.equals("1")) {    //lag post
+                //todo kim
+            } else if (choice.equals("2")) {   //søk
+                System.out.println("Vennligst oppgi et søkeord: ");
+                String searchTerm = reader.readLine();
+                System.out.println(DBconn.search(searchTerm));
+            }
+            else {return;}
+        }
     }
 }
