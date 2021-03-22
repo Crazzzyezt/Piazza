@@ -1,11 +1,9 @@
 package com.company;
 
-import com.mysql.cj.xdevapi.DbDoc;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.SQLException;
+
 
 public class Main {
 
@@ -25,7 +23,8 @@ public class Main {
 
 
 
-        while (true) {                                      //kan bruke "Arne" og "arne123"
+        while (true) {      //kan bruke "Arne" og "arne123" for Student
+                            //Eller "David" og "david123" for Instructor.
             System.out.println("vennligst logg in med ditt brukernavn eller din e-post");
             String username = reader.readLine();
 
@@ -57,7 +56,7 @@ public class Main {
             System.out.println("Velg blant alternativene: \n 1. Svar på en post \n 2. Se statistikk \n 3. avslutt");
             String choice = reader.readLine();
 
-            if (choice.equals("1")) {    //besvar post
+            if (choice.equals("1")) {    //besvar post basert på PostID.
                 System.out.println("Vennligst oppgi PostID for posten du vil besvare: ");
                 int postID = Integer.parseInt(reader.readLine());
                 System.out.println("Vennligst oppgi ditt svar på posten: ");
@@ -81,7 +80,7 @@ public class Main {
             System.out.println("Velg blant alternativene: \n 1. Lag en ny post \n 2. Søk etter poster \n 3. avslutt");
             String choice = reader.readLine();
 
-            if (choice.equals("1")) {    //lag post
+            if (choice.equals("1")) {    //lag post med tekst og tag i riktig folder.
                 System.out.println("Vennligst oppgi hvilken folder du ønsker lage ny tråd/post: ");
                 String folderName = reader.readLine();
                 System.out.println("Vennligst oppgi tekst: ");

@@ -2,7 +2,7 @@ package com.company;
 
 import java.sql.*;
 import java.util.*;
-import javax.xml.transform.Result;
+
 
 
 public class DBConn {
@@ -15,11 +15,9 @@ public class DBConn {
     public boolean connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            //System.out.println("0");
             java.util.Properties p = new Properties();
             p.put("user", "edsongr_eistad");
             p.put("password", "passord");
-            //System.out.println("1");
             String url = "jdbc:mysql://mysql.stud.ntnu.no:3306/edsongr_eistad_datab?autoReconnect=true&useSSL=false";
             conn = DriverManager.getConnection(url, "edsongr_eistad", "passord");
             System.out.println("successfully established connection");
@@ -38,6 +36,7 @@ public class DBConn {
             PreparedStatement statement = conn.prepareStatement("SELECT name, email, type from User where password=(?)");
             statement.setString(1, password);
             ResultSet rs = statement.executeQuery();
+            //Går igjennom hvert result for å sjekke.
             while (rs.next()) {
                 if (rs.getString("name").equals(username)
                         ||  rs.getString("email").equals(username)) {
@@ -49,7 +48,7 @@ public class DBConn {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return 0;
@@ -73,6 +72,7 @@ public class DBConn {
             statement2.setInt(1,userID);
             statement2.setInt(2,folderIDFromResult);
             statement2.execute();
+            // Henter ThreadIDn på nyopprettede Thread.
             PreparedStatement lastInsert = conn.prepareStatement("Select LAST_INSERT_ID();");
             ResultSet rs2 = lastInsert.executeQuery();
             System.out.println();
@@ -87,7 +87,7 @@ public class DBConn {
             statement3.setInt(3,userID);
             statement3.setInt(4,newThreadID);
             statement3.execute();
-        }catch (Exception e){
+        }catch (SQLException e){
             e.printStackTrace();
         }
     }
@@ -99,6 +99,7 @@ public class DBConn {
             PreparedStatement statement = conn.prepareStatement("Select ThreadID From Post Where PostID = (?) ");
             statement.setInt(1,postID);
             ResultSet rs = statement.executeQuery();
+            //Henter ThreadID basert på postID.
             while (rs.next()){
                 correctThreadID = rs.getInt("ThreadID");
             }
@@ -108,7 +109,7 @@ public class DBConn {
             statement2.setInt(3,correctThreadID);
             statement2.execute();
         }
-        catch (Exception e ){
+        catch (SQLException e ){
             e.printStackTrace();
         }
 
@@ -121,10 +122,11 @@ public class DBConn {
             PreparedStatement statement = conn.prepareStatement("SELECT PostID from Post where text like (?) ");
             statement.setString(1, "%" + keyword + "%");
             ResultSet rs = statement.executeQuery();
+            //Henter hver linje i resultset for å legge til eventuelle treff.
             while (rs.next()) {
                 list.add(rs.getInt("PostID"));
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;
@@ -135,6 +137,8 @@ public class DBConn {
     public HashMap<String,List<Integer>> stats(){
         HashMap<String,List<Integer>> list = new HashMap<>();
         try{
+            //Left outer joiner Post med User basert på Userid. Teller oppføringer, og grupperer
+            //etter UserID. Sortert deretter synkende etter readstats.
             PreparedStatement statement = conn.prepareStatement("Select name, readstats, " +
                 "ifnull(count(P.PostID),0) as antallPosts" +
                 " From User as U" +
@@ -143,10 +147,11 @@ public class DBConn {
                 " Group by U.UserID" +
                 " order by readstats DESC");
             ResultSet rs = statement.executeQuery();
+            //Henter hver linje av result.
             while (rs.next()){
                 list.put(rs.getString("name"),new ArrayList<>(Arrays.asList(rs.getInt("readstats"),rs.getInt("antallPosts"))));
             }
-        }catch (Exception e){
+        }catch (SQLException e){
             e.printStackTrace();
         }
         return list;
@@ -196,6 +201,7 @@ public class DBConn {
                 PreparedStatement lastInsert = conn.prepareStatement("Select LAST_INSERT_ID();");
                 ResultSet rs = lastInsert.executeQuery();
                 int userID = 0;
+                //Henter siste UserID som ble lagt inn, for å kunne opprette relasjon mot type.
                 while (rs.next()){
                     userID = rs.getInt("LAST_INSERT_ID()");
                 }
@@ -212,9 +218,8 @@ public class DBConn {
                 else{
                     System.out.println("Wrong type of user. Please contact admin.");
                 }
-
             }
-            catch(Exception e) {
+            catch(SQLException e) {
                 e.printStackTrace();
             }
 
@@ -228,7 +233,7 @@ public class DBConn {
             statement.execute();
             System.out.println("Inserted "+userID+ " in course "+ courseID);
 
-        }catch (Exception e){
+        }catch (SQLException e){
             e.printStackTrace();
         }
     }
@@ -255,10 +260,7 @@ public class DBConn {
             String folderCategory = null;
             while (rs.next()) {
                 folderCategory = rs.getString("Category");
-
             }
-
-
             System.out.println("inserting " + title + " into " + folderCategory);
             statement.setString(1, title);
             statement.setString(2, threadText);
@@ -267,7 +269,7 @@ public class DBConn {
             statement.setInt(5, folderID);
             statement.execute();
         }
-        catch(Exception e) {
+        catch(SQLException e) {
             e.printStackTrace();
         }
     }
@@ -281,10 +283,7 @@ public class DBConn {
             String threadTitle = null;
             while (rs.next()) {
                 threadTitle = rs.getString("Title");
-
             }
-
-
             System.out.println("inserting post into " + threadTitle);
             statement.setString(1, tag);
             statement.setInt(2, likes);
@@ -293,7 +292,7 @@ public class DBConn {
             statement.setInt(5, threadID);
             statement.execute();
         }
-        catch(Exception e) {
+        catch(SQLException e) {
             e.printStackTrace();
         }
     }
