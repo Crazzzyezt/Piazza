@@ -140,7 +140,8 @@ public class DBConn {
                 " From User as U" +
                 " Left Outer join Post as P" +
                 " on U.UserID = P.UserID" +
-                " Group by U.UserID");
+                " Group by U.UserID" +
+                " order by readstats DESC");
             ResultSet rs = statement.executeQuery();
             while (rs.next()){
                 list.put(rs.getString("name"),new ArrayList<>(Arrays.asList(rs.getInt("readstats"),rs.getInt("antallPosts"))));
