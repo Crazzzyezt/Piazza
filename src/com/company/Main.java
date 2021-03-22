@@ -50,35 +50,8 @@ public class Main {
         }
 
 
-
-        /* Insert Into Course (CourseName, term)
-        DBconn.insertCourse("TDT4100","Høst");
-         */
-
-        /* Insert Into User (Name, Email, Password, readstats, type)*//*
-        DBconn.insertUser("David","David@email.no","david123",0,"Instructor");
-
-
-        /* Insert into Folder (Category, CourseID)
-        DBconn.insertFolder("Exam",3);
-         */
-
-        /* /*Insert into Post (Tag, Likes, Text, UserID,ThreadID)
-        DBconn.insertPost("Question", 2, "Kan jeg ta kont uten godkjent øvinger??"
-            , 2, 1);
-            */
-
-
-        /* Insert into Thread (Title, ThreadText, Views, UserID, FolderID)
-        DBconn.insertThread("LF","Når kommer LF for eksamen?",0,1,1);
-         */
-        //System.out.println(DBconn.stats());
-        //DBconn.replyByPostID("Konten er 12.desember", 1,4);
-
-
-
     }
-
+    //Menyen som Users med type == Instructor får opp. Herunder Use case 3 og 5.
     private static void instructorMenu(BufferedReader reader, DBConn DBconn, int userID) throws IOException{
         while (true) {
             System.out.println("Velg blant alternativene: \n 1. Svar på en post \n 2. Se statistikk \n 3. avslutt");
@@ -102,7 +75,7 @@ public class Main {
             else {return;}
         }
     }
-
+    //Menyen som Users med type == Student får opp. Herunder Use case 2 og 4.
     private static void studentMenu(BufferedReader reader, DBConn DBconn, int userID) throws IOException {
         while (true) {
             System.out.println("Velg blant alternativene: \n 1. Lag en ny post \n 2. Søk etter poster \n 3. avslutt");
@@ -115,7 +88,6 @@ public class Main {
                 String text = reader.readLine();
                 System.out.print("Vennligst oppgi tag: ");
                 String tag = reader.readLine();
-                System.out.println("Vennligst oppgi din UserID: ");
                 try{
                     DBconn.postInCorrectFolder(text,tag,folderName,userID);
                     System.out.println("Post lagt til.");

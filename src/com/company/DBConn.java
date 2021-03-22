@@ -11,7 +11,7 @@ public class DBConn {
 
     public DBConn() {
     }
-
+    // Oppretter forbindelse med mysql-servern hos stud.ntnu.no.
     public boolean connect() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -30,39 +30,9 @@ public class DBConn {
         }
     }
 
-    public List<Integer> search(String keyword){
-        List<Integer> list = new ArrayList<>();
-        try {
-            PreparedStatement statement = conn.prepareStatement("SELECT PostID from Post where text like (?) ");
-            statement.setString(1, "%" + keyword + "%");
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
-                list.add(rs.getInt("PostID"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-//Use case 5. Only show raw data without columninfo as of now.
-    public HashMap<String,List<Integer>> stats(){
-        HashMap<String,List<Integer>> list = new HashMap<>();
-        try{
-            PreparedStatement statement = conn.prepareStatement("Select name, readstats, " +
-                "ifnull(count(P.PostID),0) as antallPosts" +
-                " From User as U" +
-                " Left Outer join Post as P" +
-                " on U.UserID = P.UserID" +
-                " Group by U.UserID");
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()){
-                list.put(rs.getString("name"),new ArrayList<>(Arrays.asList(rs.getInt("readstats"),rs.getInt("antallPosts"))));
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return list;
-    }
+
+    // USE CASE 1.
+    // Sjekker om kombinasjonen username og password stemmer.
     public int checkPassword(String username, String password) {
         try {
             PreparedStatement statement = conn.prepareStatement("SELECT name, email, type from User where password=(?)");
@@ -84,6 +54,103 @@ public class DBConn {
         }
         return 0;
     }
+    // USE CASE 2.
+    // Legger inn en post basert på folderName, med text og tag.
+    //En ny Thread opprettes, der posten vil bli lagt til. Denne inneholder ikke innhold for
+    //ThreadText.
+    public void postInCorrectFolder(String text, String tag, String folderName,int userID){
+        try{
+            //Statement 1 henter riktig FolderID.
+            PreparedStatement statement = conn.prepareStatement("Select FolderID from Folder where Category = (?)");
+            statement.setString(1,folderName);
+            ResultSet rs = statement.executeQuery();
+            int folderIDFromResult= 0;
+            while (rs.next()){
+                folderIDFromResult = rs.getInt("FolderID");
+            }
+            //Statement 2 oppretter en nå Thread basert på folderID fra statement 1.
+            PreparedStatement statement2 = conn.prepareStatement("Insert into Thread(UserID, FolderID) Values ( (?), (?))");
+            statement2.setInt(1,userID);
+            statement2.setInt(2,folderIDFromResult);
+            statement2.execute();
+            PreparedStatement lastInsert = conn.prepareStatement("Select LAST_INSERT_ID();");
+            ResultSet rs2 = lastInsert.executeQuery();
+            System.out.println();
+            int newThreadID = 0;
+            while (rs2.next()){
+                newThreadID = rs2.getInt("LAST_INSERT_ID()");
+            }
+            // Statement 3 inserter en post i denne nyopprettede threaden, med text og tag.
+            PreparedStatement statement3 = conn.prepareStatement("Insert into Post(text, tag,UserID,ThreadID) Values ( (?), (?), (?), (?))");
+            statement3.setString(1,text);
+            statement3.setString(2,tag);
+            statement3.setInt(3,userID);
+            statement3.setInt(4,newThreadID);
+            statement3.execute();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    // USE CASE 3
+    //Legger en post i riktig tråd basert på PostID.
+    public void replyByPostID(String text, int postID, int userID){
+        int correctThreadID = 0;
+        try{
+            PreparedStatement statement = conn.prepareStatement("Select ThreadID From Post Where PostID = (?) ");
+            statement.setInt(1,postID);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()){
+                correctThreadID = rs.getInt("ThreadID");
+            }
+            PreparedStatement statement2 = conn.prepareStatement("Insert into Post(text,UserID,ThreadID) values ( (?), (?), (?))");
+            statement2.setString(1,text);
+            statement2.setInt(2,userID);
+            statement2.setInt(3,correctThreadID);
+            statement2.execute();
+        }
+        catch (Exception e ){
+            e.printStackTrace();
+        }
+
+    }
+    // USE CASE 4
+    // Søker igjennom hver post med text lik keyword. Returnerer en liste med postIDs.
+    public List<Integer> search(String keyword){
+        List<Integer> list = new ArrayList<>();
+        try {
+            PreparedStatement statement = conn.prepareStatement("SELECT PostID from Post where text like (?) ");
+            statement.setString(1, "%" + keyword + "%");
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getInt("PostID"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+    // USE CASE 5
+    //Returnerer en liste over hvor mange lesninger og posts opprettet hver bruker i databasen har.
+    //Listen vil også inkludere null-forekomster.
+    public HashMap<String,List<Integer>> stats(){
+        HashMap<String,List<Integer>> list = new HashMap<>();
+        try{
+            PreparedStatement statement = conn.prepareStatement("Select name, readstats, " +
+                "ifnull(count(P.PostID),0) as antallPosts" +
+                " From User as U" +
+                " Left Outer join Post as P" +
+                " on U.UserID = P.UserID" +
+                " Group by U.UserID");
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()){
+                list.put(rs.getString("name"),new ArrayList<>(Arrays.asList(rs.getInt("readstats"),rs.getInt("antallPosts"))));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return list;
+    }
+    //Returnerer UserID lik name.
     public int getUserID(String name){
         try {
             PreparedStatement statement = conn.prepareStatement("Select UserId from User where name = (?)");
@@ -100,7 +167,7 @@ public class DBConn {
     }
 
 
-
+    // Innsetting av Course i DB.
     public void insertCourse(String name, String term) {
         try {
             PreparedStatement statement =
@@ -114,6 +181,7 @@ public class DBConn {
         }
 
     }
+    // Innsetting av User i DB. Oppretter også relasjonen mellom User og student/instructor.
     public void insertUser(String name, String email, String password, int readstats, String type) {
             try {
                 PreparedStatement statement = conn.prepareStatement("Insert Into User (Name, Email, Password, readstats, type) VALUES ( (?), (?), (?), (?), (?) ) ");
@@ -123,13 +191,47 @@ public class DBConn {
                 statement.setString(3, password);
                 statement.setInt(4,readstats);
                 statement.setString(5,type);
-
                 statement.execute();
+                PreparedStatement lastInsert = conn.prepareStatement("Select LAST_INSERT_ID();");
+                ResultSet rs = lastInsert.executeQuery();
+                int userID = 0;
+                while (rs.next()){
+                    userID = rs.getInt("LAST_INSERT_ID()");
+                }
+                if(type.toLowerCase().equals("student")){
+                    PreparedStatement statement2 = conn.prepareStatement("Insert into Student(UserID) VALUES (?)");
+                    statement2.setInt(1,userID);
+                    statement2.execute();
+                }
+                else if(type.toLowerCase().equals("instructor")){
+                    PreparedStatement statement3 = conn.prepareStatement("Insert into Instructor(UserID) VALUES (?)");
+                    statement3.setInt(1,userID);
+                    statement3.execute();
+                }
+                else{
+                    System.out.println("Wrong type of user. Please contact admin.");
+                }
+
             }
             catch(Exception e) {
                 e.printStackTrace();
             }
+
     }
+    // Innsetting av UserInCourse i DB.
+    public void insertUserInCourse(int userID, int courseID){
+        try{
+            PreparedStatement statement = conn.prepareStatement("Insert into UserInCourse(UserID,CourseID VALUES ( (?), (?))");
+            statement.setInt(1,userID);
+            statement.setInt(2,courseID);
+            statement.execute();
+            System.out.println("Inserted "+userID+ " in course "+ courseID);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    // Innsetting av Folder i DB.
     public void insertFolder(String category, int courseID) {
         try {
             PreparedStatement statement = conn.prepareStatement("INSERT INTO Folder(Category, CourseID) VALUES ( (?), (?) ) ");
@@ -142,6 +244,7 @@ public class DBConn {
             e.printStackTrace();
         }
     }
+    // Insetting av Thread i DB.
     public void insertThread(String title, String threadText, int views, int userID, int folderID) {
         try {
             PreparedStatement statement = conn.prepareStatement("INSERT INTO Thread(Title,ThreadText, Views,UserID, FolderID) VALUES ( (?), (?), (?), (?), (?) ) ");
@@ -167,7 +270,7 @@ public class DBConn {
             e.printStackTrace();
         }
     }
-
+    // Innsetting av Post i DB.
     public void insertPost(String tag, int likes, String text, int userID, int threadID) {
         try {
             PreparedStatement statement = conn.prepareStatement("INSERT INTO Post(tag, likes, text, UserID, ThreadID) VALUES ( (?), (?), (?), (?), (?) ) ");
@@ -193,59 +296,7 @@ public class DBConn {
             e.printStackTrace();
         }
     }
-    // Use case 2
-    public void postInCorrectFolder(String text, String tag, String folderName,int userID){
-        try{
-            PreparedStatement statement = conn.prepareStatement("Select FolderID from Folder where Category = (?)");
-            statement.setString(1,folderName);
-            ResultSet rs = statement.executeQuery();
-            int folderIDFromResult= 0;
-            while (rs.next()){
-                folderIDFromResult = rs.getInt("FolderID");
-            }
-            PreparedStatement statement2 = conn.prepareStatement("Insert into Thread(UserID, FolderID) Values ( (?), (?))");
-            statement2.setInt(1,userID);
-            statement2.setInt(2,folderIDFromResult);
-            statement2.execute();
-            PreparedStatement lastInsert = conn.prepareStatement("Select LAST_INSERT_ID();");
-            ResultSet rs2 = lastInsert.executeQuery();
-            System.out.println();
-            int newThreadID = 0;
-            while (rs2.next()){
-                newThreadID = rs2.getInt("LAST_INSERT_ID()");
-            }
 
-            PreparedStatement statement3 = conn.prepareStatement("Insert into Post(text, tag,UserID,ThreadID) Values ( (?), (?), (?), (?))");
-            statement3.setString(1,text);
-            statement3.setString(2,tag);
-            statement3.setInt(3,userID);
-            statement3.setInt(4,newThreadID);
-            statement3.execute();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-    // Use case 3
-    public void replyByPostID(String text, int postID, int userID){
-        int correctThreadID = 0;
-        try{
-            PreparedStatement statement = conn.prepareStatement("Select ThreadID From Post Where PostID = (?) ");
-            statement.setInt(1,postID);
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()){
-                correctThreadID = rs.getInt("ThreadID");
-            }
-            PreparedStatement statement2 = conn.prepareStatement("Insert into Post(text,UserID,ThreadID) values ( (?), (?), (?))");
-            statement2.setString(1,text);
-            statement2.setInt(2,userID);
-            statement2.setInt(3,correctThreadID);
-            statement2.execute();
-        }
-        catch (Exception e ){
-            e.printStackTrace();
-        }
-        
-    }
 
 }
 
