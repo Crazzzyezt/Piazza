@@ -84,6 +84,20 @@ public class DBConn {
         }
         return 0;
     }
+    public int getUserID(String name){
+        try {
+            PreparedStatement statement = conn.prepareStatement("Select UserId from User where name = (?)");
+            statement.setString(1,name);
+            ResultSet rs = statement.executeQuery();
+            int userID = 0;
+            while (rs.next()){
+                 return userID = rs.getInt("UserID");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
 
 

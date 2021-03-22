@@ -35,12 +35,14 @@ public class Main {
             userType = DBconn.checkPassword(username, password);
             if (userType == 1){
                 System.out.println("student-innlogging vellykket");
-                studentMenu(reader, DBconn);
+                int userID = DBconn.getUserID(username);
+                studentMenu(reader, DBconn,userID);
                 System.exit(0);
             }
             else if (userType == 2){
                 System.out.println("instruktør-innlogging vellykket");
-                instructorMenu(reader, DBconn);
+                int userID = DBconn.getUserID(username);
+                instructorMenu(reader, DBconn, userID);
                 System.exit(0);
 
             }
@@ -77,7 +79,7 @@ public class Main {
 
     }
 
-    private static void instructorMenu(BufferedReader reader, DBConn DBconn) throws IOException{
+    private static void instructorMenu(BufferedReader reader, DBConn DBconn, int userID) throws IOException{
         while (true) {
             System.out.println("Velg blant alternativene: \n 1. Svar på en post \n 2. Se statistikk \n 3. avslutt");
             String choice = reader.readLine();
@@ -87,9 +89,6 @@ public class Main {
                 int postID = Integer.parseInt(reader.readLine());
                 System.out.println("Vennligst oppgi ditt svar på posten: ");
                 String text = reader.readLine();
-                System.out.println("Vennligst oppgi din UserID: ");
-                int userID = Integer.parseInt(reader.readLine());
-                System.out.println(userID);
                 try{
                     DBconn.replyByPostID(text,postID,userID);
                     System.out.println("Post lagt til. ");
@@ -104,7 +103,7 @@ public class Main {
         }
     }
 
-    private static void studentMenu(BufferedReader reader, DBConn DBconn) throws IOException {
+    private static void studentMenu(BufferedReader reader, DBConn DBconn, int userID) throws IOException {
         while (true) {
             System.out.println("Velg blant alternativene: \n 1. Lag en ny post \n 2. Søk etter poster \n 3. avslutt");
             String choice = reader.readLine();
@@ -117,8 +116,6 @@ public class Main {
                 System.out.print("Vennligst oppgi tag: ");
                 String tag = reader.readLine();
                 System.out.println("Vennligst oppgi din UserID: ");
-                int userID = Integer.parseInt(reader.readLine());
-                System.out.print(userID);
                 try{
                     DBconn.postInCorrectFolder(text,tag,folderName,userID);
                     System.out.println("Post lagt til.");
